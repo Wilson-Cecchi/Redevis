@@ -95,10 +95,10 @@ def generate_report(scan: dict, diff: dict | None = None) -> str:
           <span class="diff-removed">▼ {len(diff["removed"])} removido(s)</span>
         </div>"""
 
-    # Dados do gráfico
-    history_data = load_history_for_chart()
-    chart_labels = [h["timestamp"] for h in history_data]
-    chart_values = [h["total"] for h in history_data]
+    # Dados do gráfico — gerados em Python, injetados como JSON no HTML
+    history_data  = load_history_for_chart()
+    chart_labels  = json.dumps([h["timestamp"] for h in history_data])
+    chart_values  = json.dumps([h["total"]     for h in history_data])
     total_online  = len(scan["devices"])
     total_offline = len(diff["removed"]) if diff else 0
 
@@ -108,6 +108,7 @@ def generate_report(scan: dict, diff: dict | None = None) -> str:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Redevis — {scan["timestamp"]}</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{ background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 14px; padding: 48px; }}
@@ -115,8 +116,6 @@ def generate_report(scan: dict, diff: dict | None = None) -> str:
     .logo {{ font-size: 11px; letter-spacing: .3em; color: #4a9bb5; text-transform: uppercase; margin-bottom: 12px; }}
     h1 {{ font-size: 48px; font-weight: 700; letter-spacing: -.01em; }}
     h1 span {{ color: #c8a84b; }}
-    .meta {{ margin-top: 16px; font-size: 12px; color: #888; display: flex; gap: 32px; flex-wrap: wrap; }}
-    .meta strong {{ color: #aaa; }}
     .search-wrap {{ margin-bottom: 24px; }}
     #search {{
       width: 100%; padding: 12px 16px;
@@ -145,22 +144,22 @@ def generate_report(scan: dict, diff: dict | None = None) -> str:
     .badge.new {{ background: rgba(74,155,181,.15); color: #4a9bb5; border: 1px solid rgba(74,155,181,.3); }}
     .chart-wrap {{ margin: 40px 0; padding: 24px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.07); }}
     .chart-title {{ font-size: 9px; letter-spacing: .25em; color: #555; text-transform: uppercase; margin-bottom: 20px; }}
-    canvas {{ width: 100% !important; height: 120px !important; }}
+    .chart-container {{ position: relative; height: 160px; width: 100%; }}
     footer {{ margin-top: 48px; font-size: 11px; color: #333; letter-spacing: .1em; }}
-    span[title] {{ text-decoration: underline dotted rgba(255,255,255,.3); }}
     .tooltip-wrap {{ position: relative; display: inline-block; }}
     .tooltip-wrap .tooltip-text {{
-    visibility: hidden; opacity: 0;
-    background: #1a1a1a; color: #aaa;
-    font-size: 11px; white-space: nowrap;
-    padding: 6px 10px;
-    border: 1px solid rgba(255,255,255,.1);
-    position: absolute; top: 50%; left: 130%;
-    transform: translateY(-50%);
-    transition: opacity .2s;
-    pointer-events: none;
-    z-index: 99;
+      visibility: hidden; opacity: 0;
+      background: #1a1a1a; color: #aaa;
+      font-size: 11px; white-space: nowrap;
+      padding: 6px 10px;
+      border: 1px solid rgba(255,255,255,.1);
+      position: absolute; top: 50%; left: 130%;
+      transform: translateY(-50%);
+      transition: opacity .2s;
+      pointer-events: none;
+      z-index: 99;
     }}
+    .tooltip-wrap:hover .tooltip-text {{ visibility: visible; opacity: 1; }}
     .counters {{ display: flex; gap: 24px; margin-top: 12px; }}
     .count-online  {{ font-size: 12px; letter-spacing: .15em; color: #4a9bb5; }}
     .count-offline {{ font-size: 12px; letter-spacing: .15em; color: #555; }}
@@ -172,7 +171,6 @@ def generate_report(scan: dict, diff: dict | None = None) -> str:
     th[data-col]:hover {{ color: #aaa; }}
     th[data-col].asc::after  {{ content: " ↑"; }}
     th[data-col].desc::after {{ content: " ↓"; }}
-    .tooltip-wrap:hover .tooltip-text {{ visibility: visible; opacity: 1; }}
   </style>
 </head>
 <body>
@@ -217,97 +215,128 @@ def generate_report(scan: dict, diff: dict | None = None) -> str:
 
   <div class="chart-wrap">
     <p class="chart-title">Histórico — dispositivos online</p>
-    <canvas id="chart"></canvas>
+    <div class="chart-container">
+      <canvas id="chart"></canvas>
+    </div>
   </div>
 
   <footer>Gerado por Redevis · {scan["timestamp"]}</footer>
 
   <script>
+    // ── Dados do gráfico ───────────────────────────────
+    const chartLabels = {chart_labels};
+    const chartValues = {chart_values};
+
+    // ── Gráfico Chart.js ───────────────────────────────
+    new Chart(document.getElementById('chart'), {{
+      type: 'line',
+      data: {{
+        labels: chartLabels,
+        datasets: [{{
+          label: 'Dispositivos online',
+          data: chartValues,
+          borderColor: '#4a9bb5',
+          backgroundColor: 'rgba(74, 155, 181, 0.08)',
+          pointBackgroundColor: '#c8a84b',
+          pointBorderColor: '#c8a84b',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          borderWidth: 2,
+          fill: true,
+          tension: 0.3
+        }}]
+      }},
+      options: {{
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {{
+          legend: {{ display: false }},
+          tooltip: {{
+            backgroundColor: '#1a1a1a',
+            borderColor: 'rgba(255,255,255,.1)',
+            borderWidth: 1,
+            titleColor: '#888',
+            bodyColor: '#c8a84b',
+            titleFont: {{ family: 'monospace', size: 10 }},
+            bodyFont: {{ family: 'monospace', size: 12 }},
+            callbacks: {{
+              title: function(ctx) {{ return ctx[0].label; }},
+              label: function(ctx) {{ return ctx.parsed.y + ' dispositivos'; }}
+            }}
+          }}
+        }},
+        scales: {{
+          x: {{
+            ticks: {{
+              color: '#555',
+              font: {{ family: 'monospace', size: 9 }},
+              maxRotation: 30,
+              callback: function(val, idx) {{
+                const label = chartLabels[idx] || '';
+                return label.substring(11, 16);
+              }}
+            }},
+            grid: {{ color: 'rgba(255,255,255,.04)' }},
+            border: {{ color: 'rgba(255,255,255,.07)' }}
+          }},
+          y: {{
+            ticks: {{
+              color: '#555',
+              font: {{ family: 'monospace', size: 10 }},
+              stepSize: 1
+            }},
+            grid: {{ color: 'rgba(255,255,255,.04)' }},
+            border: {{ color: 'rgba(255,255,255,.07)' }},
+            beginAtZero: false
+          }}
+        }}
+      }}
+    }});
+
     // ── Busca ──────────────────────────────────────────
     document.getElementById('search').addEventListener('input', function() {{
       const q = this.value.toLowerCase();
-      document.querySelectorAll('#devices-body tr').forEach(row => {{
+      document.querySelectorAll('#devices-body tr').forEach(function(row) {{
         row.classList.toggle('hidden', !row.textContent.toLowerCase().includes(q));
       }});
     }});
 
     // ── Ordenação por coluna ───────────────────────────
     let sortDir = {{}};
-    document.querySelectorAll('th[data-col]').forEach(th => {{
-      th.addEventListener('click', () => {{
+    document.querySelectorAll('th[data-col]').forEach(function(th) {{
+      th.addEventListener('click', function() {{
         const col = parseInt(th.getAttribute('data-col'));
         const asc = !sortDir[col];
         sortDir = {{}};
         sortDir[col] = asc;
-
-        document.querySelectorAll('th[data-col]').forEach(t => t.classList.remove('asc','desc'));
+        document.querySelectorAll('th[data-col]').forEach(function(t) {{ t.classList.remove('asc','desc'); }});
         th.classList.add(asc ? 'asc' : 'desc');
-
         const tbody = document.getElementById('devices-body');
         const rows  = Array.from(tbody.querySelectorAll('tr'));
-        rows.sort((a, b) => {{
-          const aText = a.cells[col]?.textContent.trim() || '';
-          const bText = b.cells[col]?.textContent.trim() || '';
+        rows.sort(function(a, b) {{
+          const aText = a.cells[col] ? a.cells[col].textContent.trim() : '';
+          const bText = b.cells[col] ? b.cells[col].textContent.trim() : '';
           return asc ? aText.localeCompare(bText) : bText.localeCompare(aText);
         }});
-        rows.forEach(r => tbody.appendChild(r));
+        rows.forEach(function(r) {{ tbody.appendChild(r); }});
       }});
     }});
 
     // ── Exportar CSV ───────────────────────────────────
-    document.getElementById('export-csv').addEventListener('click', () => {{
+    document.getElementById('export-csv').addEventListener('click', function() {{
       const headers = ['IP','Hostname','MAC','Fabricante','Sistema','Latência','Portas','Status'];
-      const rows = Array.from(document.querySelectorAll('#devices-body tr')).map(row => {{
-        return Array.from(row.cells).map(td => `"${{td.textContent.trim().replace(/"/g,'""')}}"`);
+      const rows = Array.from(document.querySelectorAll('#devices-body tr')).map(function(row) {{
+        return Array.from(row.cells).map(function(td) {{
+          return '"' + td.textContent.trim().replace(/"/g, '""') + '"';
+        }});
       }});
-      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const csv = [headers.join(',')].concat(rows.map(function(r) {{ return r.join(','); }})).join('\\n');
       const blob = new Blob([csv], {{type: 'text/csv'}});
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = 'redevis-export.csv';
       a.click();
     }});
-
-    // ── Gráfico ────────────────────────────────────────
-    const labels = {chart_labels};
-    const values = {chart_values};
-    const canvas  = document.getElementById('chart');
-    const ctx     = canvas.getContext('2d');
-    canvas.width  = canvas.offsetWidth;
-    canvas.height = 120;
-    const w = canvas.width;
-    const h = canvas.height;
-    const pad = 20;
-    const maxV = Math.max(...values, 1);
-    ctx.strokeStyle = 'rgba(255,255,255,.05)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 4; i++) {{
-      const y = pad + (h - pad * 2) * (1 - i / 4);
-      ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w - pad, y); ctx.stroke();
-    }}
-    if (values.length > 1) {{
-      const stepX = (w - pad * 2) / (values.length - 1);
-      ctx.beginPath();
-      ctx.strokeStyle = '#4a9bb5';
-      ctx.lineWidth = 2;
-      values.forEach((v, i) => {{
-        const x = pad + i * stepX;
-        const y = pad + (h - pad * 2) * (1 - v / maxV);
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }});
-      ctx.stroke();
-      values.forEach((v, i) => {{
-        const x = pad + i * stepX;
-        const y = pad + (h - pad * 2) * (1 - v / maxV);
-        ctx.beginPath();
-        ctx.arc(x, y, 4, 0, Math.PI * 2);
-        ctx.fillStyle = '#c8a84b';
-        ctx.fill();
-        ctx.fillStyle = '#888';
-        ctx.font = '10px monospace';
-        ctx.fillText(v, x - 4, y - 10);
-      }});
-    }}
   </script>
 </body>
 </html>"""
