@@ -1,0 +1,171 @@
+# Redevis 🔍
+
+**PT** | [EN](#redevis--english)
+
+Ferramenta de inventário de rede local com relatório HTML, histórico de scans e detecção de dispositivos.
+
+---
+
+## Funcionalidades
+
+- Escaneia a rede local e lista todos os dispositivos ativos
+- Detecta IP, hostname, fabricante (via MAC), sistema operacional e latência
+- Identifica o tipo de dispositivo: roteador, computador, servidor, TV, celular
+- Gera relatório HTML com visual escuro, busca, ordenação por coluna e exportação CSV
+- Salva histórico dos últimos 10 scans e exibe gráfico de dispositivos ao longo do tempo
+- Compara com o scan anterior e indica dispositivos novos ou removidos
+- Suporte a `--no-browser` e `--range` via linha de comando
+
+## Demonstração
+
+![Redevis Report](assets/screenshot.png)
+
+## Instalação
+
+**Requisitos:**
+- Python 3.10+
+- nmap instalado no sistema
+
+```bash
+# Instalar nmap
+sudo apt install nmap -y
+
+# Clonar o repositório
+git clone https://github.com/Wilson-Cecchi/redevis.git
+cd redevis
+
+# Instalar dependências Python
+sudo pip install python-nmap scapy manuf zeroconf --break-system-packages
+```
+
+## Uso
+
+```bash
+# Scan padrão (detecta a rede automaticamente)
+sudo python3 redevis.py
+
+# Scan em um range específico
+sudo python3 redevis.py --range 10.0.0.0/24
+
+# Sem abrir o navegador automaticamente
+sudo python3 redevis.py --no-browser
+```
+
+O relatório HTML é salvo em `reports/` e aberto automaticamente no navegador.
+
+## Estrutura do Projeto
+
+```
+redevis/
+├── redevis.py      # Ponto de entrada
+├── scanner.py      # Lógica de scan (nmap + mDNS + MAC)
+├── history.py      # Gerenciamento do histórico
+├── report.py       # Geração do relatório HTML
+├── data/
+│   └── history.json
+└── reports/
+    └── *.html
+```
+
+## Tecnologias
+
+- Python 3
+- nmap / python-nmap
+- Scapy
+- Zeroconf (mDNS)
+- manuf (lookup de fabricante por MAC)
+
+## Aviso
+
+Este projeto foi desenvolvido para uso em redes domésticas e ambientes autorizados. Não utilize em redes sem permissão explícita do administrador.
+
+## Autor
+
+**Wilson Klein Cecchi** — [GitHub](https://github.com/Wilson-Cecchi)
+
+---
+
+# Redevis — English
+
+**[PT](#redevis-)** | EN
+
+Local network inventory tool with HTML reports, scan history and device detection.
+
+---
+
+## Features
+
+- Scans the local network and lists all active devices
+- Detects IP, hostname, vendor (via MAC), operating system and latency
+- Identifies device type: router, computer, server, TV, phone
+- Generates a dark-themed HTML report with search, column sorting and CSV export
+- Saves history of the last 10 scans and displays a device count chart over time
+- Compares with the previous scan and highlights new or removed devices
+- Supports `--no-browser` and `--range` via command line
+
+## Demo
+
+![Redevis Report](assets/screenshot.png)
+
+## Installation
+
+**Requirements:**
+- Python 3.10+
+- nmap installed on the system
+
+```bash
+# Install nmap
+sudo apt install nmap -y
+
+# Clone the repository
+git clone https://github.com/Wilson-Cecchi/redevis.git
+cd redevis
+
+# Install Python dependencies
+sudo pip install python-nmap scapy manuf zeroconf --break-system-packages
+```
+
+## Usage
+
+```bash
+# Default scan (auto-detects network range)
+sudo python3 redevis.py
+
+# Scan a specific range
+sudo python3 redevis.py --range 10.0.0.0/24
+
+# Run without opening the browser
+sudo python3 redevis.py --no-browser
+```
+
+The HTML report is saved to `reports/` and opened automatically in the browser.
+
+## Project Structure
+
+```
+redevis/
+├── redevis.py      # Entry point
+├── scanner.py      # Scan logic (nmap + mDNS + MAC)
+├── history.py      # History management
+├── report.py       # HTML report generation
+├── data/
+│   └── history.json
+└── reports/
+    └── *.html
+```
+
+## Tech Stack
+
+- Python 3
+- nmap / python-nmap
+- Scapy
+- Zeroconf (mDNS)
+- manuf (MAC vendor lookup)
+
+## Disclaimer
+
+This project was developed for use on home networks and authorized environments. Do not use it on networks without explicit permission from the administrator.
+
+## Author
+
+**Wilson Klein Cecchi** — [GitHub](https://github.com/Wilson-Cecchi)
