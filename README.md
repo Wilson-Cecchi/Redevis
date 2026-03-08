@@ -25,6 +25,7 @@ Ferramenta de inventário de rede local com relatório HTML, histórico de scans
 **Requisitos:**
 - Python 3.10+
 - nmap instalado no sistema
+- python-nmap, scapy, manuf, zeroconf
 
 ```bash
 # Instalar nmap
@@ -37,6 +38,8 @@ cd redevis
 # Instalar dependências Python
 sudo pip install python-nmap scapy manuf zeroconf --break-system-packages
 ```
+
+> As pastas `data/` e `reports/` são criadas automaticamente na primeira execução.
 
 ## Uso
 
@@ -118,6 +121,7 @@ Local network inventory tool with HTML reports, scan history and device detectio
 **Requirements:**
 - Python 3.10+
 - nmap installed on the system
+- python-nmap, scapy, manuf, zeroconf
 
 ```bash
 # Install nmap
@@ -130,6 +134,8 @@ cd redevis
 # Install Python dependencies
 sudo pip install python-nmap scapy manuf zeroconf --break-system-packages
 ```
+
+> The `data/` and `reports/` folders are created automatically on first run.
 
 ## Usage
 

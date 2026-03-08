@@ -48,6 +48,10 @@ def print_devices(devices: list):
 
 
 def main():
+    # Garante que as pastas necessárias existem
+    os.makedirs(os.path.join(os.path.dirname(__file__), "data"),    exist_ok=True)
+    os.makedirs(os.path.join(os.path.dirname(__file__), "reports"), exist_ok=True)
+    
     parser = argparse.ArgumentParser(description="Redevis — Network Scanner")
     parser.add_argument("--range",      type=str,  help="Range de rede (ex: 192.168.1.0/24)")
     parser.add_argument("--no-browser", action="store_true", help="Não abre o relatório no navegador")
