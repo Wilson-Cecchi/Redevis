@@ -42,12 +42,15 @@ sudo pip install python-nmap scapy manuf zeroconf --break-system-packages
 
 ```bash
 # Scan padrão (detecta a rede automaticamente)
+cd redevis
 sudo python3 redevis.py
 
 # Scan em um range específico
+cd redevis
 sudo python3 redevis.py --range 10.0.0.0/24
 
 # Sem abrir o navegador automaticamente
+cd redevis
 sudo python3 redevis.py --no-browser
 ```
 
@@ -129,12 +132,15 @@ sudo pip install python-nmap scapy manuf zeroconf --break-system-packages
 
 ```bash
 # Default scan (auto-detects network range)
+cd redevis
 sudo python3 redevis.py
 
 # Scan a specific range
+cd redevis
 sudo python3 redevis.py --range 10.0.0.0/24
 
 # Run without opening the browser
+cd redevis
 sudo python3 redevis.py --no-browser
 ```
 
