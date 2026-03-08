@@ -12,7 +12,7 @@ Ferramenta de inventário de rede local com relatório HTML, histórico de scans
 - Detecta IP, hostname, fabricante (via MAC), sistema operacional e latência
 - Identifica o tipo de dispositivo: roteador, computador, servidor, TV, celular
 - Gera relatório HTML com visual escuro, busca, ordenação por coluna e exportação CSV
-- Salva histórico dos últimos 10 scans e exibe gráfico de dispositivos ao longo do tempo
+- Salva histórico dos últimos 10 scans e exibe gráfico interativo de dispositivos ao longo do tempo (com labels de horário no eixo X e tooltip ao passar o mouse)
 - Compara com o scan anterior e indica dispositivos novos ou removidos
 - Suporte a `--no-browser` e `--range` via linha de comando
 
@@ -56,6 +56,8 @@ sudo python3 redevis.py --no-browser
 
 O relatório HTML é salvo em `reports/` e aberto automaticamente no navegador.
 
+> **Nota:** o relatório requer conexão com a internet para carregar o gráfico (Chart.js via CDN).
+
 ## Estrutura do Projeto
 
 ```
@@ -77,6 +79,7 @@ redevis/
 - Scapy
 - Zeroconf (mDNS)
 - manuf (lookup de fabricante por MAC)
+- Chart.js (gráfico de histórico no relatório HTML)
 
 ## Aviso
 
@@ -102,7 +105,7 @@ Local network inventory tool with HTML reports, scan history and device detectio
 - Detects IP, hostname, vendor (via MAC), operating system and latency
 - Identifies device type: router, computer, server, TV, phone
 - Generates a dark-themed HTML report with search, column sorting and CSV export
-- Saves history of the last 10 scans and displays a device count chart over time
+- Saves history of the last 10 scans and displays an interactive device count chart over time (with time labels on the X axis and hover tooltips)
 - Compares with the previous scan and highlights new or removed devices
 - Supports `--no-browser` and `--range` via command line
 
@@ -146,6 +149,8 @@ sudo python3 redevis.py --no-browser
 
 The HTML report is saved to `reports/` and opened automatically in the browser.
 
+> **Note:** the report requires an internet connection to load the chart (Chart.js via CDN).
+
 ## Project Structure
 
 ```
@@ -167,6 +172,7 @@ redevis/
 - Scapy
 - Zeroconf (mDNS)
 - manuf (MAC vendor lookup)
+- Chart.js (history chart in HTML report)
 
 ## Disclaimer
 
